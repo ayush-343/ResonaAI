@@ -1,7 +1,7 @@
 "use client";
 
 
-import { TEXT_MAX_LENGTH } from "@/features/text-to-speech/data/constants";
+import { CONST_PR_UNIT, TEXT_MAX_LENGTH } from "@/features/text-to-speech/data/constants";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
@@ -27,11 +27,13 @@ export function TextInputPanel() {
             <div className="rounded-[20px] bg-[#F9F9F9] p-1">
                 <div className="space-y-4 rounded-2xl bg-white p-4 drop-shadow-xs">
                     <Textarea
+
                         placeholder="Start typing or paste your text here..."
                         className="min-h-35 resize-none border-0 bg-transparent p-0 shadow-none focus-visible:ring-0"
                         value={text}
                         onChange={(e) => setText(e.target.value)}
                         maxLength={TEXT_MAX_LENGTH}
+
                     />
 
                     {/* Bottom info */}
@@ -45,7 +47,7 @@ export function TextInputPanel() {
                                 ) : (
                                     <>
                                         <span className="tabular-nums">
-                                            ${(text.length * 0.0003).toFixed(4)}
+                                            ${(text.length * CONST_PR_UNIT).toFixed(4)}
                                         </span>{" "}
                                         estimated
                                     </>
