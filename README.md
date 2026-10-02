@@ -130,3 +130,7 @@ The interface draws visual inspiration from [ElevenLabs](https://elevenlabs.io/)
 ## License and third-party software
 
 The application source is licensed under [MIT](LICENSE). Model weights, fonts and bundled runtime/pronunciation dependencies retain their own licenses. Read [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md), particularly the GPL-3.0 eSpeak distribution requirements. The self-hosted Geist font license is included in `public/fonts/OFL.txt`.
+
+## Deploy to Render
+
+Use the free Node web-service configuration in [render.yaml](render.yaml), or follow the [Render deployment guide](docs/render-deployment.md). Root Directory stays blank; build with `npm ci --include=dev && npm run build` and start with `npm run start -- --hostname 0.0.0.0`. Configure Clerk and PostgreSQL environment variables in Render; R2 is optional for local-only generation. Render hosts the web application, while speech inference runs on the user's device.
