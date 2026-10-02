@@ -1,172 +1,132 @@
-# ResonaAI 🎙️
+# ResonaAI
 
-[![Next.js](https://img.shields.io/badge/Next.js-15%2B-black?style=for-the-badge&logo=nextdotjs)](https://nextjs.org/)
-[![React](https://img.shields.io/badge/React-19-blue?style=for-the-badge&logo=react)](https://react.dev/)
-[![Prisma](https://img.shields.io/badge/Prisma-6%2B-2D3748?style=for-the-badge&logo=prisma)](https://www.prisma.io/)
-[![TailwindCSS](https://img.shields.io/badge/Tailwind_CSS-v4-38B2AC?style=for-the-badge&logo=tailwindcss)](https://tailwindcss.com/)
-[![Clerk](https://img.shields.io/badge/Clerk-Auth-6C47FF?style=for-the-badge&logo=clerk)](https://clerk.com/)
-[![Cloudflare R2](https://img.shields.io/badge/Cloudflare-R2-F38020?style=for-the-badge&logo=cloudflare)](https://www.cloudflare.com/products/r2/)
+Text-to-speech on your laptop, with cloud accounts and optional workspace history.
 
-ResonaAI is a state-of-the-art, open-source, multi-tenant AI Text-to-Speech (TTS) SaaS platform. Built on top of **Next.js 15+ (App Router)**, **React 19**, **Prisma**, **PostgreSQL**, and **Clerk**, ResonaAI provides high-fidelity, highly configurable voice generation tailored for workspaces and organizations.
+ResonaAI runs Kokoro-82M inside the browser using **WebGPU**, with a manually selected **WebAssembly CPU** fallback. Speech inference does not call a cloud generation API. Clerk handles accounts and organizations; PostgreSQL and Cloudflare R2 support explicitly saved workspace results.
 
-Whether you're building audiobooks, podcasts, customer service agents, or custom voice motif generations, ResonaAI offers fine-grained ML parameter tuning (temperature, top-P, top-K, repetition penalty) along with a robust tenant-isolation architecture.
+**Status:** an actively developed prototype. English built-in voices are available; Hindi and Hinglish are experimental. Voice cloning currently provides a frontend setup preview, not a working cloning engine.
 
----
+![ResonaAI landing page](docs/screenshots/landing-2026-10-02/desktop.jpg)
 
-## 🚀 Key Features
+## What works today
 
-*   👥 **Multi-Tenant Organization Workspaces:** Securely manage voices, generations, and settings scoped to Clerk-managed organizations.
-*   🎛️ **Granular ML Hyperparameter Tuning:** Complete control over output characteristics during generation (Temperature, Top-K, Top-P, and Repetition Penalty).
-*   💵 **Real-Time Cost Estimation:** Live character count and cost prediction on the frontend using dynamic pricing algorithms before running costly ML inferences.
-*   📦 **Hybrid Cloud Architecture:** Heavy audio blobs are uploaded to Cloudflare R2 (S3-compatible, zero-egress fee blob storage) while light metadata is queried from a high-performance PostgreSQL instance.
-*   🎙️ **Custom & System Voice Libraries:** Organize voices by categories (Podcast, Audiobook, Narrative, Meditations, Advertising, and more) and variants (System/Custom).
-*   🛡️ **Edge-Level Route & Tenant Protection:** Middleware proxy handles JWT parsing and mandates organization selection prior to dashboard access.
-*   💾 **Resilient History Preservation:** Implements database denormalization strategies so that custom voices can be deleted without breaking the historical generation records of your organization.
+- Public landing page with language/voice selection and a script handoff into Studio.
+- Speech Studio with local generation, voice selection, speaking speed, pronunciation overrides, cancellation, playback, a waveform derived from generated audio, and WAV download.
+- Eight built-in voices: Heart, Bella, Michael, Emma, Alpha, Beta, Omega and Psi. Hindi voices also support experimental mixed-script Hinglish.
+- Voice catalog with search, language filters, device-local favorites and locally generated previews.
+- Workspace-scoped device history, script reuse and optional cloud save/history when storage is configured.
+- Profile, Workspace and Device & Storage settings, including processing preference and removal of cached model downloads.
+- Voice-cloning setup with recording validation and local playback. No recording upload or clone creation.
+- Responsive layouts, keyboard-accessible controls and reduced-motion styles.
 
----
-
-## 🛠️ Tech Stack & Architecture
-
-### Core Architecture
+## Architecture and data
 
 ```mermaid
-flowchart TD
-    Client[Next.js Client app] -->|1. Request / Authenticate| Clerk[Clerk Auth / Proxy Middleware]
-    Clerk -->|2. Validates Tenant/Org| ServerAction[Next.js Server Actions]
-    ServerAction -->|3. Validate Inputs| Zod[Zod Schema / TanStack Form]
-    ServerAction -->|4. ML Inference| ML[TTS Engine / API]
-    ML -->|5. Store Audio Blob| R2[(Cloudflare R2 Storage)]
-    ServerAction -->|6. Save Metadata| Prisma[Prisma ORM]
-    Prisma -->|7. Persist State| DB[(PostgreSQL Database)]
+flowchart LR
+    Browser[Browser / Speech Studio] --> Worker[Local inference worker]
+    Host[Model asset host] -->|Initial model download| Worker
+    Worker --> GPU[WebGPU or WebAssembly CPU]
+    GPU --> Audio[WAV playback and download]
+    Audio --> Device[(Device history / IndexedDB)]
+    Browser --> Clerk[Clerk accounts and organizations]
+    Browser -->|Explicit Save to workspace| API[Authenticated Next.js API]
+    API --> DB[(PostgreSQL / Prisma)]
+    API --> R2[(Private Cloudflare R2 bucket)]
 ```
 
-### The Stack
+Text and audio remain on the device during inference. **Save to workspace** uploads the selected text, audio and metadata. Accounts, organization management and cloud history require cloud services. Model downloads also require a network connection; browser caches can be evicted, so this is not a promise that the entire application works offline.
 
-*   **Framework:** Next.js 15+ (App Router, Server Actions, Server Components)
-*   **UI Components:** React 19, Radix UI, `@base-ui/react`, Lucide React
-*   **Styling:** Tailwind CSS v4, PostCSS, Glassmorphism design system
-*   **Database ORM:** Prisma with `PrismaPg` adapter for Edge / Serverless deployment
-*   **Database:** PostgreSQL
-*   **Form & State Validation:** `@tanstack/react-form` combined with `zod` for type-safe validation
-*   **Authentication:** Clerk (`@clerk/nextjs`) with middleware-based multi-tenancy
+The pinned model is `onnx-community/Kokoro-82M-v1.0-ONNX`, revision `1939ad2a8e416c0acfeecc08a694d14ef25f2231`. WebGPU loads approximately **326 MB** of FP32 model weights; CPU uses approximately **93 MB** of Q8 weights, plus pronunciation and runtime files. Compatibility, loading time and generation speed depend on the browser and hardware. CPU fallback is selected manually in Studio.
 
----
+Hindi and Hinglish output needs listening and pronunciation checks before publication. For Romanized Hindi, the pronunciation override can provide Devanagari text. The current script limit is 5,000 characters; output is assembled before playback rather than streamed.
 
-## 📁 File Structure
+## Run locally
 
-The project strictly follows a **domain-driven feature-slicing** layout:
-
-```
-src/
-├── app/                  # Next.js App Router (Layouts, Pages, Clerk routing)
-├── components/           # Generic / Global reusable UI Components
-├── features/             # Domain features
-│   ├── dashboard/        # Dashboard view & layout features
-│   └── text-to-speech/   # TTS generators, settings, history panels
-│       ├── components/   # Isolated UI components (Sliders, Inputs, Buttons)
-│       ├── data/         # Backend hooks, Server Actions, & Services
-│       └── views/        # Main text-to-speech layouts and parent view
-├── generated/            # Auto-generated Prisma client
-├── hooks/                # Custom React hooks
-├── lib/                  # Shared utilities (DB clients, Environment helpers)
-└── proxy.ts              # Edge middleware for Clerk auth/org checks
-```
-
----
-
-## 🎛️ ML Hyperparameters Explained
-
-When generating audio, ResonaAI allows users to tune:
-
-*   **Temperature:** Controls the randomness of the generated audio waveform. Lower values are more stable; higher values are more expressive but might introduce audio artifacts.
-*   **Top-P (Nucleus Sampling):** Samples from the smallest set of acoustic tokens whose cumulative probability exceeds P. This prevents the model from generating improbable sounds.
-*   **Top-K:** Restricts sampling to the K most probable next acoustic tokens, hardening the tail of the probability distribution for voice stability.
-*   **Repetition Penalty:** Crucial parameter to prevent the transformer from entering infinite loops, stuttering, or repeated patterns during inference.
-
----
-
-## 🛠️ Getting Started
-
-### Prerequisites
-
-*   **Node.js** v20+
-*   **PostgreSQL** database instance
-*   **Clerk** Account (for Authentication & Organizations)
-*   **Cloudflare R2** Bucket (for Audio storage)
-
-### 1. Clone the repository
+Use **Node.js 22** (see `.nvmrc`) and npm. The authenticated workspace requires a Clerk application with Organizations enabled. PostgreSQL and a private R2 bucket are needed to exercise cloud persistence; R2 is optional for local generation.
 
 ```bash
 git clone https://github.com/ayush-343/ResonaAI.git
-cd resonaai
+cd ResonaAI
+cp .env.example .env
 ```
 
-### 2. Install dependencies
+Fill in `.env` before installing:
+
+| Variable | Purpose |
+| --- | --- |
+| `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` | Clerk browser authentication |
+| `CLERK_SECRET_KEY` | Clerk server authentication |
+| `DATABASE_URL` | PostgreSQL connection / Prisma configuration |
+| `R2_ACCOUNT_ID` | Optional Cloudflare account for cloud audio |
+| `R2_BUCKET_NAME` | Optional private audio bucket |
+| `R2_ACCESS_KEY_ID` | Optional server-side R2 credential |
+| `R2_SECRET_ACCESS_KEY` | Optional server-side R2 credential |
+
+Never expose server credentials through `NEXT_PUBLIC_` variables or commit `.env` files.
 
 ```bash
-npm install
-```
-
-### 3. Setup Environment Variables
-
-Create a `.env` (or `.env.local`) file in the root directory:
-
-```env
-# Clerk Authentication Configuration
-NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=your_clerk_publishable_key
-CLERK_SECRET_KEY=your_clerk_secret_key
-NEXT_PUBLIC_CLERK_SIGN_IN_URL=/sign-in
-NEXT_PUBLIC_CLERK_SIGN_UP_URL=/sign-up
-
-# Database Connection
-DATABASE_URL="postgresql://user:password@host:port/database?sslmode=require"
-
-# Cloudflare R2 Credentials (Optional / for ML Storage)
-CLOUDFLARE_R2_BUCKET=your_bucket_name
-CLOUDFLARE_R2_ACCESS_KEY_ID=your_access_key
-CLOUDFLARE_R2_SECRET_ACCESS_KEY=your_secret_key
-```
-
-### 4. Database Setup & Prisma Generation
-
-Generate the type-safe Prisma client and apply database schemas:
-
-```bash
-# Generate the custom output client inside src/generated/prisma
-npx prisma generate
-
-# Deploy schema to database
-npx prisma db push
-```
-
-### 5. Run the development server
-
-```bash
+npm ci
+npx prisma migrate deploy
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Installation generates the Prisma client and prepares the browser pronunciation/ONNX runtime assets. Generated files are ignored by Git. Migrations create the database schema; when using an existing database, review and baseline its migration history as appropriate before applying changes. This repository update does not migrate your database automatically.
 
----
+Open [localhost:3000](http://localhost:3000), sign in, select or create a workspace, and open Studio. Choose GPU or CPU, click **Download & load model**, then generate speech. If GPU loading fails, select CPU and load again. Without R2 configuration, local generation and device history remain available; cloud actions show a configuration message.
 
-## 🤝 Contributing to ResonaAI
+## Pages
 
-We welcome contributions from the open-source community! To contribute:
+| Route | Purpose |
+| --- | --- |
+| `/` | Public landing page |
+| `/home` | Protected dashboard and quick script entry |
+| `/text-to-speech` | Speech Studio |
+| `/voices` | Built-in catalog and cloning setup preview |
+| `/voices?tab=cloning` | Direct link to cloning setup |
+| `/history` | Device and configured cloud history |
+| `/settings/profile` | Account settings |
+| `/settings/workspace` | Organization settings |
+| `/settings/device` | Processing preference, cache and local storage |
+| `/lab` | Public local inference benchmark; no cloud saving |
 
-1.  **Fork** the repository.
-2.  Create a feature branch (`git checkout -b feature/amazing-feature`).
-3.  Commit your changes (`git commit -m 'Add some amazing feature'`).
-4.  Push to the branch (`git push origin feature/amazing-feature`).
-5.  Open a **Pull Request**.
+## Development
 
-### Code Style Guidelines
-*   Keep files structured in their corresponding domain folder under `src/features/`.
-*   Validate all forms and server requests using **Zod schemas**.
-*   Verify your code builds locally before pushing: `npm run build`.
+The stack uses Next.js 16 App Router, React 19, TypeScript, Tailwind CSS 4, shadcn/Radix UI, Clerk, Prisma 6, PostgreSQL, ONNX Runtime Web and Transformers.js. Speech runs in a worker. Browser pronunciation uses eSpeak NG.
 
----
+```bash
+npm run check     # TypeScript, tests, ESLint and design checks
+npm run build     # Production build with Webpack
+npm start         # Serve the production build
+```
 
-## 📄 License
+GitHub Actions runs `npm ci` and `npm run check`. Current local validation passes the production build and 12 tests. An existing hook-dependency warning remains in the unused `wavy-background` component.
 
-This project is open-source and licensed under the [MIT License](LICENSE).
+```text
+src/app/                         Routes, layouts and authenticated APIs
+src/features/landing/            Public landing page
+src/features/dashboard/          Workspace shell and Home
+src/features/text-to-speech/      Studio, waveform and draft persistence
+src/features/tts-engine/          Model catalog, worker and audio utilities
+src/features/voices/              Catalog and cloning setup preview
+src/features/history/            Device/cloud history
+src/features/settings/           Device settings and cache controls
+prisma/                          Database schema and migrations
+tests/                           Routing, drafts, audio and error handling
+scripts/                         Generated browser asset preparation
+docs/                            Plans, implementation notes and mockups
+```
 
+## Remaining work
+
+- Connect a real voice-cloning engine; the current preview cannot generate a cloned voice.
+- Evaluate Hindi/Hinglish quality and WebGPU performance across representative laptops.
+- Complete cloud-save integration testing with a configured database and R2 bucket.
+- Add cloud-history pagination (currently the latest 50 cloud results).
+- Build document listening and longer-form project workflows.
+- Review dependency advisories and complete eSpeak source-distribution obligations before a public application release.
+
+The interface draws visual inspiration from [ElevenLabs](https://elevenlabs.io/) while retaining ResonaAI branding and original artwork. Design work follows [Impeccable](https://impeccable.style/designing/)'s Start → Improve → Check → Maintain workflow. It is not affiliated with ElevenLabs. See [DESIGN.md](DESIGN.md), [PRODUCT.md](PRODUCT.md) and the [implementation notes](docs/landing-implementation-2026-10-02.md).
+
+## License and third-party software
+
+The application source is licensed under [MIT](LICENSE). Model weights, fonts and bundled runtime/pronunciation dependencies retain their own licenses. Read [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md), particularly the GPL-3.0 eSpeak distribution requirements. The self-hosted Geist font license is included in `public/fonts/OFL.txt`.

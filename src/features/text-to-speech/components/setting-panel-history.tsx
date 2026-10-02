@@ -18,8 +18,13 @@ export function SettingPanelHistory() {
                     <Clock className="size-4 text-muted-foreground" />
                 </div>
 
-
             </div>
+            <p className="text-semibold text-foreground tracking-light">
+                No generations yet. Start by generating your first speech!
+            </p>
+            <p className="max-w-48 text-muted-foreground text-center text-xs">
+                Generate some audio and they will appear here in your history.
+            </p>
         </div>
     )
 }

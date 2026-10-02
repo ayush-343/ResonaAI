@@ -46,3 +46,10 @@ next-env.d.ts
 /.clerk/
 
 /src/generated/prisma
+
+/public/vendor/
+!.env.example
+
+# Local signed-in verification screenshots may contain account details
+/docs/screenshots/layouts-2026-10-02/
+/docs/screenshots/landing-2026-10-02/dashboard-*.jpg

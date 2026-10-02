@@ -1,3 +1,5 @@
+"use client";
+
 import {z} from "zod";
 
 import { formOptions } from "@tanstack/react-form";
@@ -18,7 +20,7 @@ export type TTSSFormValues = z.infer<typeof ttsFormSchema>;
 
 export const defaultTTSValues: TTSSFormValues = {
     text: "",
-    voiceId: "",
+    voiceId: "default",
     temperature: 0.8,
     topP: 0.95,
     topK: 1000,

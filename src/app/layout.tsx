@@ -1,24 +1,14 @@
 import type { Metadata } from "next";
-import { Inter, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "sonner";
+import { shadcn } from "@clerk/ui/themes";
 import { ClerkProvider } from "@clerk/nextjs";
-const inter = Inter({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-inter",
-  subsets: ["latin"],
-});
-
 export const metadata: Metadata = {
   title: {
     default: "ResonaAI",
     template: "%s | ResonaAI"
   },
-  description: "AI-powered text-to-speech  and voice cloning platform. ",
+  description: "Speech generated on your laptop, with workspace history.",
 };
 
 export default function RootLayout({
@@ -27,11 +17,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ClerkProvider>
-      <html lang="en">
+    <ClerkProvider signInFallbackRedirectUrl="/home" signUpFallbackRedirectUrl="/home" appearance={{ theme: shadcn }}>
+      <html lang="en" suppressHydrationWarning>
 
         <body
-          className={`${inter.variable} ${geistMono.variable} antialiased`}
+          className="antialiased"
         >
           {children}
           <Toaster />

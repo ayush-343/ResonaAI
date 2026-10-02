@@ -1,0 +1,26 @@
+.clone-setup { padding-top: 20px; max-width: 760px; }
+.clone-heading-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 12px; }
+.clone-heading-row h2 { font-size: 20px; font-weight: 600; }
+.clone-preview-label { font-size: 13px; color: var(--muted-foreground); background: var(--muted); padding: 6px 10px; border-radius: 6px; white-space: nowrap; }
+.clone-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+.clone-setup .studio-field input, .clone-setup .studio-field textarea { width: 100%; min-height: 44px; border: 1px solid var(--control-border); border-radius: 6px; background: var(--background); padding: 10px 12px; font-size: 14px; }
+.clone-setup textarea { resize: vertical; }
+.clone-setup input::placeholder, .clone-setup textarea::placeholder { color: var(--muted-foreground); }
+.clone-recording-field { display: grid; gap: 10px; padding: 20px; border: 1px solid var(--border); border-radius: 12px; }
+.clone-recording-field > label { font-size: 14px; font-weight: 600; }
+.clone-recording-field input { width: 100%; min-width: 0; font-size: 14px; overflow: hidden; }
+.clone-recording-field input::file-selector-button { padding: 10px 14px; margin-right: 12px; border: 1px solid var(--control-border); border-radius: 6px; background: var(--background); color: var(--foreground); cursor: pointer; }
+.clone-recording-field input::file-selector-button:hover { background: var(--muted); }
+.clone-consent { display: flex; align-items: flex-start; gap: 10px; font-size: 14px; line-height: 1.6; margin: 24px 0; }
+.clone-consent input { width: 18px; height: 18px; flex: 0 0 auto; margin-top: 3px; accent-color: var(--foreground); }
+.clone-action-row { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; }
+.clone-sample { border-top: 1px solid var(--border); margin-top: 28px; padding-top: 20px; }
+.clone-sample-header, .clone-sample-header > div { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.clone-sample-header { justify-content: space-between; margin-bottom: 14px; }
+.clone-sample-header svg { flex-shrink: 0; }
+.clone-sample-header span { overflow-wrap: anywhere; font-size: 14px; }
+.clone-local-note { margin-top: 24px; font-size: 13px; color: var(--muted-foreground); line-height: 1.6; }
+.clone-review h3 { font-size: 20px; font-weight: 600; margin-top: 12px; overflow-wrap: anywhere; }
+.clone-review > p { margin: 8px 0; }
+.clone-description { white-space: pre-wrap; overflow-wrap: anywhere; }
+@media(max-width:600px) { .clone-fields { grid-template-columns: 1fr; gap: 0; } .clone-heading-row { flex-wrap: wrap; gap: 8px; } .clone-recording-field { padding: 16px; } }

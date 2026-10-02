@@ -1,79 +1,11 @@
 "use client";
-
-
-import { CONST_PR_UNIT, TEXT_MAX_LENGTH } from "@/features/text-to-speech/data/constants";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Coins } from "lucide-react";
-import { Textarea } from "@/components/ui/textarea";
-import { Badge } from "@/components/ui/badge";
-
-
+import { Button } from "@/components/ui/button";
+import { SAMPLES, TEXT_LIMIT, type LanguageMode } from "@/features/tts-engine/catalog";
 export function TextInputPanel() {
-    const [text, setText] = useState("");
-    const router = useRouter();
-
-    const handleGenerate = () => {
-        // Navigate to the generation page with the text as a query parameter
-        const trimmed = text.trim();
-        if (!trimmed) return; // don't navigate if the text is empty
-        router.push(`/text-to-speech/generate?text=${encodeURIComponent(trimmed)}`);
-    };
-
-    return (
-        <div className="rounded-[20px] bg-linear-185 from-[#ff8ee3] from-15% via-[#57d7e0 via-39% to-[#dbf1f2] to-85% p-0.5 shadow[0_0_0_4px_white]">
-            <div className="rounded-[20px] bg-[#F9F9F9] p-1">
-                <div className="space-y-4 rounded-2xl bg-white p-4 drop-shadow-xs">
-                    <Textarea
-
-                        placeholder="Start typing or paste your text here..."
-                        className="min-h-35 resize-none border-0 bg-transparent p-0 shadow-none focus-visible:ring-0"
-                        value={text}
-                        onChange={(e) => setText(e.target.value)}
-                        maxLength={TEXT_MAX_LENGTH}
-
-                    />
-
-                    {/* Bottom info */}
-
-                    <div className="flex items-center justify-between">
-                        <Badge variant="outline" className="gap-1.5 border-dashed">
-                            <Coins className="size-3 text-chart-5" />
-                            <span className="text-xs">
-                                {text.length === 0 ? (
-                                    "Start typing to estimate"
-                                ) : (
-                                    <>
-                                        <span className="tabular-nums">
-                                            ${(text.length * CONST_PR_UNIT).toFixed(4)}
-                                        </span>{" "}
-                                        estimated
-                                    </>
-                                )}
-                            </span>
-                        </Badge>
-                        <span className="text-xs text-muted-foreground">
-                            {text.length.toLocaleString()} / {TEXT_MAX_LENGTH.toLocaleString()} characters
-                        </span>
-                    </div>
-                </div>
-
-                { /* Action Bar */}
-
-                <div className="flex items-center justify-end p-3">
-                    <Button
-                        size="sm"
-                        disabled={!text.trim()}
-                        onClick={handleGenerate}
-                        className="w-full lg:w-auto"
-                    >
-                        Generate Speech
-
-                    </Button>
-                </div>
-            </div>
-        </div>
-    )
-};
+  const [text, setText] = useState("");
+  const [language, setLanguage] = useState<LanguageMode>("en");
+  const router = useRouter();
+  return <section className="studio-script home-compose"><div className="studio-section-header"><label htmlFor="quick-script" className="studio-title">Your script</label><div className="language-options" role="group" aria-label="Script language">{(["en", "hi", "hinglish"] as const).map(mode => <button key={mode} type="button" aria-pressed={language === mode} onClick={() => setLanguage(mode)}>{mode === "en" ? "English" : mode === "hi" ? "Hindi" : "Hinglish"}</button>)}</div></div><textarea id="quick-script" className="studio-textarea" placeholder={language === "en" ? "Write or paste the words you want to hear…" : "आज कुछ नया सीखते हैं। Write or paste your script…"} value={text} maxLength={TEXT_LIMIT} onChange={event => setText(event.target.value)} /><div className="studio-action-bar"><span className="tabular-nums">{text.length.toLocaleString()} / {TEXT_LIMIT.toLocaleString()} characters</span><div className="home-compose-actions"><Button variant="ghost" onClick={() => setText(SAMPLES[language])}>Try a sample</Button><Button disabled={!text.trim()} onClick={() => { const voice = language === "en" ? "af_heart" : "hf_alpha"; try { sessionStorage.setItem("resona-script-draft", text); router.push(`/text-to-speech?draft=${crypto.randomUUID()}&voice=${voice}&language=${language}`); } catch { router.push(`/text-to-speech?text=${encodeURIComponent(text)}&voice=${voice}&language=${language}`); } }}>Open in Studio</Button></div></div></section>;
+}

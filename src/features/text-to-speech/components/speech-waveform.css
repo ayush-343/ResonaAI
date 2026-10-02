@@ -1,0 +1,2 @@
+.speech-waveform { display: block; width: 100%; height: 56px; margin: 12px 0; color: var(--selection, var(--foreground)); }
+.speech-waveform line { stroke: currentColor; stroke-width: 2; stroke-linecap: round; }

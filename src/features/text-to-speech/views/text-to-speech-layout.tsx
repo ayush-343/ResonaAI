@@ -6,10 +6,9 @@ export function TextToSpeechLayout({
     children: React.ReactNode;
 }) {
     return (
-        <div className="flex h-full min-h-0 flex-col overflow-hidden">
-            <PageHeader title="Text to Speech" />
+        <div className="flex min-h-0 flex-col">
+            <PageHeader title="Speech Studio" />
             {children}
         </div>
     )
 }
-

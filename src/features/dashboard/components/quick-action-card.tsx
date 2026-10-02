@@ -3,33 +3,16 @@ import { ArrowRight } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import type { QuickAction } from "@/features/dashboard/data/quick-actions";
-import { cn } from "@/lib/utils";
 
 type QuickActionCardProps = QuickAction;
 
 export function QuickActionCard({
     title,
     description,
-    gradient,
     href,
 }: QuickActionCardProps) {
     return (
         <div className="flex gap-4 rounded-xl border bg-card p-3">
-            {/* Visual placeholder with gradient */}
-            <div
-                className={cn(
-                    "relative h-32 w-40 shrink-0 overflow-hidden rounded-xl bg-linear-to-br",
-                    gradient,
-                )}
-            >
-                {/* Decorative elements */}
-                <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="size-12 rounded-full bg-white/30" />
-                </div>
-                <div className="absolute inset-2 rounded-lg ring-2 ring-inset ring-white/20" />
-
-            </div>
-
             {/* Content */}
             <div className="flex flex-col justify-between py-1">
                 <div className="space-y-1">

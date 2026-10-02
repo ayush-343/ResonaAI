@@ -1,16 +1,8 @@
-import { VoicePreviewPlaceholder } from "@/features/text-to-speech/components/voice-preview-placeholder";
-import { TextInputPanel } from "../components/text-input-panel";
-
-import { SettingsPanel } from "../components/settings-panel";
-
-export function TextToSpeechView() {
-    return (
-        <div className="flex min-h-0 flex-1 overflow-hidden">
-            <div className="flex min-h-0 flex-col flex-1">
-                <TextInputPanel />
-                <VoicePreviewPlaceholder />
-            </div>
-            <SettingsPanel />
-        </div>
-    )
+"use client";
+import { useAuth } from "@clerk/nextjs";
+import { SpeechStudio } from "../components/speech-studio";
+export function TextToSpeechView({ initialText, initialVoice, initialLanguage, draftId }: { initialText?: string; initialVoice?: string; initialLanguage?: string; draftId?: string }) {
+  const { orgId, isLoaded } = useAuth();
+  if (!isLoaded || !orgId) return <div className="workspace-loading" role="status">Opening your workspace…</div>;
+  return <SpeechStudio key={`${orgId}:${draftId ?? initialVoice ?? initialText ?? ""}:${initialLanguage ?? ""}`} owner={orgId} initialText={initialText} initialVoice={initialVoice} initialLanguage={initialLanguage} />;
 }

@@ -22,12 +22,12 @@ enum VoiceVariant {
 enum VoiceCategory {
   AUDIOBOOK
   CONVERSATIONAL
-  CUSTIOMER_SERVICE
+  CUSTOMER_SERVICE @map("CUSTIOMER_SERVICE")
   GENERAL
   NARRATIVE
   CHARACTERS
   MEDITATION
-  MOTIFATIONAL
+  MOTIVATIONAL @map("MOTIFATIONAL")
   PODCAST
   ADVERTISING
   VOICEOVER
@@ -70,14 +70,26 @@ model Generation {
   r2ObjectKey String? // The key for the generated audio file stored in Cloudflare R2
 
   // Generation parameters for the TTS model
-  temperature       Float
-  topP              Float
-  topK              Int
-  repetitionPenalty Float
+  temperature       Float?
+  topP              Float?
+  topK              Int?
+  repetitionPenalty Float?
+
+  modelId       String?
+  modelRevision String?
+  engineVersion String?
+  languageMode  String?
+  settings      Json?
+  audioDuration Float?
+  sampleRate    Int?
+  elapsedMs     Float?
+  firstAudioMs  Float?
+  payloadDigest String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([orgId])
   @@index([voiceId])
+  @@index([orgId, createdAt])
 }
