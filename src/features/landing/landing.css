@@ -136,3 +136,13 @@ to{transform:translateY(0) rotate(0)}
 @media(prefers-reduced-motion:reduce){.resona-landing *{animation:none!important;transition:none!important;scroll-behavior:auto!important}
 }
 
+
+.landing-beta{display:inline-flex;vertical-align:middle;margin-left:8px;padding:3px 8px;border-radius:6px;background:#e5efeb;color:#195b56;font-size:12px;font-weight:600;letter-spacing:normal}
+.preview-script strong{display:block;font-size:12px;font-weight:600;color:#195b56}
+.preview-script p{margin:6px 0 18px;font-size:16px;line-height:1.6}
+.preview-script p:last-child{margin-bottom:0}
+.landing-project-note{font-size:14px;color:#626262;max-width:72ch;margin-top:18px;line-height:1.65}
+.landing-project-note a{text-decoration:underline;text-underline-offset:4px}
+
+.landing-hero-projects{display:flex;align-items:center;gap:10px;width:fit-content;margin-top:16px;font-size:14px;color:#195b56;text-underline-offset:4px}
+.landing-hero-projects:hover{text-decoration:underline}

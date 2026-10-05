@@ -17,6 +17,7 @@ ResonaAI runs Kokoro-82M inside the browser using **WebGPU**, with a manually se
 - Workspace-scoped device history, script reuse and optional cloud save/history when storage is configured.
 - Profile, Workspace and Device & Storage settings, including processing preference and removal of cached model downloads.
 - Voice-cloning setup with recording validation and local playback. No recording upload or clone creation.
+- Creator Projects with device-local chapters, named speakers, script blocks, reviewed TXT/DOCX/PDF import, sequential listening, bookmarks and chapter/full-project WAV export.
 - Responsive layouts, keyboard-accessible controls and reduced-motion styles.
 
 ## Architecture and data
@@ -38,11 +39,21 @@ Text and audio remain on the device during inference. **Save to workspace** uplo
 
 The pinned model is `onnx-community/Kokoro-82M-v1.0-ONNX`, revision `1939ad2a8e416c0acfeecc08a694d14ef25f2231`. WebGPU loads approximately **326 MB** of FP32 model weights; CPU uses approximately **93 MB** of Q8 weights, plus pronunciation and runtime files. Compatibility, loading time and generation speed depend on the browser and hardware. CPU fallback is selected manually in Studio.
 
-Hindi and Hinglish output needs listening and pronunciation checks before publication. For Romanized Hindi, the pronunciation override can provide Devanagari text. The current script limit is 5,000 characters; output is assembled before playback rather than streamed.
+Hindi and Hinglish output needs listening and pronunciation checks before publication. For Romanized Hindi, the pronunciation override can provide Devanagari text. Speech Studio accepts 5,000 characters per script; output is assembled before playback rather than streamed. Projects support up to 100,000 characters across scripts and pronunciation overrides, generating serial requests of at most 5,000 characters with Unicode-safe splitting.
+
+## Creator Projects
+
+Open **Projects** to create a project or import a TXT, DOCX or selectable-text PDF. Extraction runs locally, then a review step lets you edit the extracted text before saving. Files are limited to 20 MB and extracted text to 100,000 characters. Use `# Chapter title` lines to mark chapter boundaries; blank lines create script blocks. Scanned/image-only PDF pages require OCR in another tool, and password-protected PDFs require an unlocked copy.
+
+Assign named speakers and built-in voices to blocks, adjust language, generation speed, pronunciation and pauses, then generate a block, chapter or project. Blocks and chapters can be reordered; place the cursor inside a block to split it after clearing any pronunciation override. Generation saves completed chunks locally and reuses only chunks matching the current script and speech settings. Changed or deleted blocks lose their obsolete audio on save.
+
+Native audio playback advances through generated sections, with playback speed, chapter selection, bookmarks and a saved listening position. Download a chapter or the entire project as WAV after generating all sections. Editable projects and audio use IndexedDB scoped to the signed-in user and selected organization; they do not sync between devices, and browser storage removal loses them.
+
+**Save chapter to workspace** uploads only the selected chapter's text, audio and metadata through the existing history API. It requires one voice, language, generation speed and compute backend throughout the chapter, with at most 5,000 characters, 20 minutes and 25 MB. Multi-speaker and larger chapters remain downloadable; the editable project stays local. See the [implementation and verification notes](docs/creator-studio-implementation-2026-10-05.md).
 
 ## Run locally
 
-Use **Node.js 22** (see `.nvmrc`) and npm. The authenticated workspace requires a Clerk application with Organizations enabled. PostgreSQL and a private R2 bucket are needed to exercise cloud persistence; R2 is optional for local generation.
+Use **Node.js 22.13 or later** (see `.nvmrc`) and npm. The authenticated workspace requires a Clerk application with Organizations enabled. PostgreSQL and a private R2 bucket are needed to exercise cloud persistence; R2 is optional for local generation.
 
 ```bash
 git clone https://github.com/ayush-343/ResonaAI.git
@@ -81,6 +92,8 @@ Open [localhost:3000](http://localhost:3000), sign in, select or create a worksp
 | `/` | Public landing page |
 | `/home` | Protected dashboard and quick script entry |
 | `/text-to-speech` | Speech Studio |
+| `/projects` | Device-local creator project library and document import |
+| `/projects/[id]` | Chapter and multi-speaker editor, listening and export |
 | `/voices` | Built-in catalog and cloning setup preview |
 | `/voices?tab=cloning` | Direct link to cloning setup |
 | `/history` | Device and configured cloud history |
@@ -99,7 +112,7 @@ npm run build     # Production build with Webpack
 npm start         # Serve the production build
 ```
 
-GitHub Actions runs `npm ci` and `npm run check`. Current local validation passes the production build and 12 tests. An existing hook-dependency warning remains in the unused `wavy-background` component.
+GitHub Actions runs `npm ci` and `npm run check`. Creator Projects validation passes `npm run check` with 27 tests; production compilation passed, with final build traces still completing at the time of the implementation report. An existing hook-dependency warning remains in the unused `wavy-background` component.
 
 ```text
 src/app/                         Routes, layouts and authenticated APIs
@@ -107,6 +120,7 @@ src/features/landing/            Public landing page
 src/features/dashboard/          Workspace shell and Home
 src/features/text-to-speech/      Studio, waveform and draft persistence
 src/features/tts-engine/          Model catalog, worker and audio utilities
+src/features/projects/            Local chapters, import, generation, listening and export
 src/features/voices/              Catalog and cloning setup preview
 src/features/history/            Device/cloud history
 src/features/settings/           Device settings and cache controls
@@ -122,7 +136,7 @@ docs/                            Plans, implementation notes and mockups
 - Evaluate Hindi/Hinglish quality and WebGPU performance across representative laptops.
 - Complete cloud-save integration testing with a configured database and R2 bucket.
 - Add cloud-history pagination (currently the latest 50 cloud results).
-- Build document listening and longer-form project workflows.
+- Benchmark long-form project memory use and verify Projects generation on WebGPU.
 - Review dependency advisories and complete eSpeak source-distribution obligations before a public application release.
 
 The interface draws visual inspiration from [ElevenLabs](https://elevenlabs.io/) while retaining ResonaAI branding and original artwork. Design work follows [Impeccable](https://impeccable.style/designing/)'s Start → Improve → Check → Maintain workflow. It is not affiliated with ElevenLabs. See [DESIGN.md](DESIGN.md), [PRODUCT.md](PRODUCT.md) and the [implementation notes](docs/landing-implementation-2026-10-02.md).

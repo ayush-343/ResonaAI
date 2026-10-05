@@ -4,6 +4,7 @@ import { createRequire } from "node:module";
 
 const require = createRequire(import.meta.url);
 const targets = [
+  [resolve("node_modules/pdfjs-dist/legacy/build"), "public/vendor/pdfjs", ["pdf.worker.min.mjs"]],
   [dirname(require.resolve("espeak-ng")), "public/vendor/espeak", ["espeak-ng.js", "espeak-ng.wasm"]],
   [resolve("node_modules/onnxruntime-web/dist"), "public/vendor/onnx", null],
 ];
@@ -14,4 +15,5 @@ for (const [source, destination, names] of targets) {
   }
 }
 await copyFile("node_modules/espeak-ng/LICENSE", "public/vendor/espeak/LICENSE");
-console.log("Browser pronunciation and ONNX runtime assets prepared.");
+await copyFile("node_modules/pdfjs-dist/LICENSE", "public/vendor/pdfjs/LICENSE");
+console.log("Browser pronunciation, ONNX runtime and PDF worker assets prepared.");

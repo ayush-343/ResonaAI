@@ -1,6 +1,7 @@
 export const DASHBOARD_ROUTES = [
   { title: "Home", url: "/home" },
   { title: "Speech Studio", url: "/text-to-speech" },
+  { title: "Projects", url: "/projects" },
   { title: "Voices", url: "/voices" },
   { title: "History", url: "/history" },
   { title: "Settings", url: "/settings" },

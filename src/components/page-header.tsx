@@ -9,10 +9,12 @@ import { cn } from "@/lib/utils";
 export function PageHeader({
     title,
     className,
+    badge,
 
 }: {
     title: string;
     className?: string;
+    badge?: string;
 }) {
     return ( // here we use cn to combine the className passed as a prop with the default classes for the header
         <header className={cn("workspace-topbar flex shrink-0 items-center justify-between gap-3 border-b px-4 py-4", className,)}>
@@ -20,6 +22,7 @@ export function PageHeader({
             <div className="flex items-center gap-2">
                 <SidebarTrigger />
                 <h1 className="text-2xl font-semibold tracking-tight">{title}</h1>
+                {badge && <span className="workspace-beta">{badge}</span>}
             </div>
             <div className="flex items-center gap-3">
                 <Button variant="outline" size="sm" asChild>

@@ -7,7 +7,7 @@ import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupConte
 
 import { OrganizationSwitcher, UserButton } from "@clerk/nextjs";
 
-import { type LucideIcon, Home, LayoutGrid, AudioLines, Settings, History } from "lucide-react";
+import { type LucideIcon, Home, LayoutGrid, AudioLines, Settings, History, FolderOpen } from "lucide-react";
 
 import Link from "next/link";
 import { DASHBOARD_ROUTES, PROFILE_PATH, WORKSPACE_PATH, isActiveRoute } from "../data/navigation";
@@ -71,7 +71,7 @@ export function DashboardSidebar() {
 
     const pathname = usePathname();
 
-    const icons = [Home, AudioLines, LayoutGrid, History, Settings];
+    const icons = [Home, AudioLines, FolderOpen, LayoutGrid, History, Settings];
     const mainMenuItems: MenuItem[] = DASHBOARD_ROUTES.map((item, index) => ({ ...item, icon: icons[index] }));
 
     return (

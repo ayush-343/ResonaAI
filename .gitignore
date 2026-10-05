@@ -53,3 +53,6 @@ next-env.d.ts
 # Local signed-in verification screenshots may contain account details
 /docs/screenshots/layouts-2026-10-02/
 /docs/screenshots/landing-2026-10-02/dashboard-*.jpg
+
+# Signed-in project verification captures may contain account details
+/.impeccable/review/

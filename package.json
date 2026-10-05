@@ -10,7 +10,7 @@
     "lint": "eslint",
     "typecheck": "tsc --noEmit --incremental false",
     "test": "node --import tsx --test tests/*.test.ts",
-    "design:check": "impeccable detect src/features/landing src/features/text-to-speech/components/speech-studio.tsx src/features/text-to-speech/components/speech-waveform.tsx src/features/text-to-speech/components/speech-waveform.css src/features/voices src/features/settings src/features/history/history-panel.tsx src/features/dashboard/workspace.css src/features/dashboard/components/dashboard-sidebar.tsx src/features/dashboard/components/dashboard-header.tsx src/features/dashboard/components/text-input-panel.tsx src/features/dashboard/components/quick-action-panel.tsx src/features/dashboard/views/dashboard-views.tsx src/components/page-header.tsx src/app/globals.css",
+    "design:check": "impeccable detect src/features/landing src/features/text-to-speech/components/speech-studio.tsx src/features/text-to-speech/components/speech-waveform.tsx src/features/text-to-speech/components/speech-waveform.css src/features/voices src/features/settings src/features/history/history-panel.tsx src/features/dashboard/workspace.css src/features/dashboard/components/dashboard-sidebar.tsx src/features/dashboard/components/dashboard-header.tsx src/features/dashboard/components/text-input-panel.tsx src/features/dashboard/components/quick-action-panel.tsx src/features/dashboard/views/dashboard-views.tsx src/components/page-header.tsx src/app/globals.css src/features/projects",
     "check": "npm run typecheck && npm run test && npm run lint && npm run design:check"
   },
   "dependencies": {
@@ -38,8 +38,10 @@
     "espeak-ng": "^1.0.2",
     "input-otp": "^1.4.2",
     "lucide-react": "^0.577.0",
+    "mammoth": "^1.13.0",
     "next": "^16.3.8",
     "next-themes": "^0.4.6",
+    "pdfjs-dist": "^6.4.299",
     "pg": "^8.20.0",
     "radix-ui": "^1.4.3",
     "react": "19.2.3",
@@ -66,6 +68,7 @@
     "dotenv": "^17.3.1",
     "eslint": "^9",
     "eslint-config-next": "^16.3.8",
+    "fake-indexeddb": "^6.2.5",
     "impeccable": "^4.1.0",
     "prisma": "^6.19.2",
     "shadcn": "^4.0.7",
